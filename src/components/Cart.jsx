@@ -10,14 +10,14 @@ const Cart = () => {
   const total = cartItems.reduce((acc, item) => acc + item.price.slice(1) * item.quantity, 0);
 
   return (
-    <div className="cart bg-gray-100">
+    <div className="cart bg-neutral-300">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-gray-900">Shopping Cart</h1>
+        <h1 className="text-5xl font-bold text-gray-900">Shopping Cart</h1>
         <div className="mt-8">
-          <table className="min-w-full bg-white">
+          <table className="min-w-full bg-slate-200">
             <thead>
               <tr>
-                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 border-b border-gray-600 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
                 <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
