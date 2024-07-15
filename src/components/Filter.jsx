@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-
+ 
 const Filter = ({ categories, onFilter }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState([0, 100]);
-
+ 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
     onFilter(e.target.value, priceRange);
   };
-
+ 
   const handlePriceChange = (e) => {
     const range = e.target.value.split(',').map(Number);
     setPriceRange(range);
     onFilter(selectedCategory, range);
   };
-
+ 
   return (
     <div className="filter bg-white p-6 rounded-lg shadow mb-6">
       <h2 className="text-2xl font-bold mb-4">Filter</h2>
@@ -51,5 +51,6 @@ const Filter = ({ categories, onFilter }) => {
     </div>
   );
 };
-
+ 
 export default Filter;
+ 
