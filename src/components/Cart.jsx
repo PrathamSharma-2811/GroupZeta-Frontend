@@ -4,7 +4,6 @@ const Cart = ({ cartItems, removeFromCart, increaseQuantity, decreaseQuantity })
   const total = cartItems.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0);
 
   return (
-<
     <div className="cart bg-gray-100 p-4 shadow-md rounded-lg">
       <h1 className="text-2xl font-bold text-gray-900 mb-4">Shopping Cart</h1>
       <div>
@@ -12,7 +11,6 @@ const Cart = ({ cartItems, removeFromCart, increaseQuantity, decreaseQuantity })
           <p>Your cart is empty</p>
         ) : (
           <table className="min-w-full bg-white">
-
             <thead>
               <tr>
                 <th className="px-6 py-3 border-b border-gray-600 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -39,17 +37,30 @@ const Cart = ({ cartItems, removeFromCart, increaseQuantity, decreaseQuantity })
                     <img src={item.image} alt={item.name} className="w-12 h-12 object-cover inline-block mr-4" />
                     {item.name}
                   </td>
-                  <td className="px-6 py-4 border-b border-gray-200">{item.price}</td>
+                  <td className="px-6 py-4 border-b border-gray-200">${item.price}</td>
                   <td className="px-6 py-4 border-b border-gray-200">
-                    <button onClick={() => decreaseQuantity(item.id)} className="bg-gray-300 text-gray-700 px-2 py-1 rounded-lg mr-2">-</button>
+                    <button
+                      onClick={() => decreaseQuantity(item.id)}
+                      className="bg-gray-300 text-gray-700 px-2 py-1 rounded-lg mr-2"
+                    >
+                      -
+                    </button>
                     {item.quantity}
-                    <button onClick={() => increaseQuantity(item.id)} className="bg-gray-300 text-gray-700 px-2 py-1 rounded-lg ml-2">+</button>
+                    <button
+                      onClick={() => increaseQuantity(item.id)}
+                      className="bg-gray-300 text-gray-700 px-2 py-1 rounded-lg ml-2"
+                    >
+                      +
+                    </button>
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-right">
                     ${parseFloat(item.price) * item.quantity}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-right">
-                    <button onClick={() => removeFromCart(item.id)} className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                    >
                       Remove
                     </button>
                   </td>

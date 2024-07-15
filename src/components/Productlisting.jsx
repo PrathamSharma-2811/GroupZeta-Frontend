@@ -1,27 +1,87 @@
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import Cart from './Cart';
 
-const products = [
-  { id: 1, name: 'Product 1', price: 20, image: 'https://assets.ajio.com/medias/sys_master/root/20240621/PSPe/66759fe86f60443f3170c0ad/-473Wx593H-469635025-green-MODEL5.jpg', category: 'Category 1' },
-  { id: 2, name: 'Product 2', price: 48, image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRx7r3yurInj3l2ccMaDnokChFI5C4DsAuutTMo4PfsyH_zrNIgaZa7fmTiF7AQYpaLULYLuPOyNQnQ1dokpKNNjdFplKNoIr5KmSJ-aABLqQpm7qaJBkJu', category: 'Category 2' },
-  { id: 3, name: 'Product 3', price: 60, image: 'https://static.zara.net/assets/public/2ce9/9d3a/38d74199a080/74bd435d18a9/02731045632-002-p/02731045632-002-p.jpg?ts=1707124154636&w=850', category: 'Category 1' },
-  { id: 4, name: 'Product 4', price: 39, image: 'https://static.zara.net/assets/public/c9b6/d461/e08541e98421/9fdeb65fded5/03067516513-p/03067516513-p.jpg?ts=1720625410539&w=850', category: 'Category 1' },
-  { id: 5, name: 'Product 5', price: 70, image: 'https://static.zara.net/assets/public/7abb/95af/2eb64544af56/a931ebea724a/12324410056-e2/12324410056-e2.jpg?ts=1720772616747&w=850', category: 'Category 2' },
-  // Add more products as needed
-];
-  // Add more products as needed
-
-
-const categories = [...new Set(products.map(product => product.category))];
-
 const ProductListing = () => {
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-
-  const [priceRange, setPriceRange] = useState([1, 100]);
+  const [priceRange, setPriceRange] = useState([1, 1000]);
   const [cartItems, setCartItems] = useState([]);
+  const [newProduct, setNewProduct] = useState({
+    productname: '',
+    productprice: '',
+    productdescription: '',
+    productcategory: '',
+  });
 
+ 
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:3030/product/get');
+      const result = await response.json();
+      setProducts(result.data);
+      setFilteredProducts(result.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const addNewProduct = async () => {
+    try {
+      const response = await fetch('http://localhost:3030/product/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProduct),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setProducts([...products, result.data]);
+        setFilteredProducts([...filteredProducts, result.data]);
+        setNewProduct({ productname: '', productprice: '', productdescription: '', productcategory: '' });
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
+  };
+
+  const updateProduct = async (product) => {
+    try {
+      const response = await fetch(`http://localhost:3030/product/update/${product._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+    }
+  };
+
+  const deleteProduct = async (productId) => {
+    try {
+      const response = await fetch(`http://localhost:3030/product/delete/${product._id}`, {
+        method: 'DELETE',
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
@@ -29,25 +89,29 @@ const ProductListing = () => {
 
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
-    setPriceRange(prevRange => name === 'min' ? [value, prevRange[1]] : [prevRange[0], value]);
+    setPriceRange((prevRange) =>
+      name === 'min' ? [value, prevRange[1]] : [prevRange[0], value]
+    );
   };
 
   const filterProducts = () => {
-    const filtered = products.filter(product => {
+    const filtered = products.filter((product) => {
       return (
-        (!selectedCategory || product.category === selectedCategory) &&
-        product.price >= priceRange[0] &&
-        product.price <= priceRange[1]
+        (!selectedCategory || product.productcategory === selectedCategory) &&
+        product.productprice >= priceRange[0] &&
+        product.productprice <= priceRange[1]
       );
     });
     setFilteredProducts(filtered);
   };
 
   const addToCart = (product) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
+    const existingItem = cartItems.find((item) => item._id === product._id);
     if (existingItem) {
-      const updatedCartItems = cartItems.map(item =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      const updatedCartItems = cartItems.map((item) =>
+        item._id === product._id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
       );
       setCartItems(updatedCartItems);
     } else {
@@ -56,23 +120,33 @@ const ProductListing = () => {
   };
 
   const removeFromCart = (productId) => {
-    const updatedCartItems = cartItems.filter(item => item.id !== productId);
+    const updatedCartItems = cartItems.filter((item) => item._id !== productId);
     setCartItems(updatedCartItems);
   };
 
   const increaseQuantity = (productId) => {
-    const updatedCartItems = cartItems.map(item =>
-      item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+    const updatedCartItems = cartItems.map((item) =>
+      item._id === productId
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
     );
     setCartItems(updatedCartItems);
   };
 
   const decreaseQuantity = (productId) => {
-    const updatedCartItems = cartItems.map(item =>
-      item.id === productId && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+    const updatedCartItems = cartItems.map((item) =>
+      item._id === productId && item.quantity > 1
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
     );
     setCartItems(updatedCartItems);
   };
+
+  const handleProductClick = (productId) => {
+    history.push(`/productdetails/${productId}`);
+  };
+
+  const categories = [...new Set(products.map((product) => product.productcategory))];
 
   return (
     <div className="product-listing bg-gray-100">
@@ -86,8 +160,10 @@ const ProductListing = () => {
             className="block w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
         </div>
@@ -118,14 +194,82 @@ const ProductListing = () => {
         >
           Apply Filters
         </button>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Add New Product</h2>
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={newProduct.productname}
+              onChange={(e) => setNewProduct({ ...newProduct, productname: e.target.value })}
+              className="block w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <input
+              type="number"
+              placeholder="Product Price"
+              value={newProduct.productprice}
+              onChange={(e) => setNewProduct({ ...newProduct, productprice: e.target.value })}
+              className="block w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <input
+              type="text"
+              placeholder="Product Description"
+              value={newProduct.productdescription}
+              onChange={(e) => setNewProduct({ ...newProduct, productdescription: e.target.value })}
+              className="block w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <input
+              type="text"
+              placeholder="Product Category"
+              value={newProduct.productcategory}
+              onChange={(e) => setNewProduct({ ...newProduct, productcategory: e.target.value })}
+              className="block w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button
+              onClick={addNewProduct}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            >
+              Add Product
+            </button>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredProducts.map(product => (
-            <div key={product.id} className="bg-white p-6 rounded-lg shadow">
-              <img src={product.image} alt={product.name} className="h-40 w-full object-cover mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
-              <p className="text-gray-700">${product.price}</p>
-
-              <button onClick={() => addToCart(product)} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Add to Cart</button>
+          {filteredProducts.map((product) => (
+            <div
+              key={product._id}
+              className="bg-white p-6 rounded-lg shadow cursor-pointer"
+              onClick={() => handleProductClick(product._id)}
+            >
+              <div className="h-40 w-full bg-gray-300 mb-4">Image Placeholder</div>
+              <h2 className="text-2xl font-bold text-gray-900">{product.productname}</h2>
+              <p className="text-gray-700">${product.productprice}</p>
+              <p className="text-gray-500">{product.productcategory}</p>
+              <p className="text-gray-700 mt-2">{product.productdescription}</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const updatedProduct = {
+                    ...product,
+                    productname: prompt('Enter new product name:', product.productname),
+                    productprice: prompt('Enter new product price:', product.productprice),
+                    productdescription: prompt('Enter new product description:', product.productdescription),
+                    productcategory: prompt('Enter new product category:', product.productcategory),
+                  };
+                  updateProduct(updatedProduct);
+                }}
+                className="bg-yellow-500 text-white px-4 py-2 rounded-lg mt-2 mr-2"
+              >
+                Update
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteProduct(product._id);
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg mt-2"
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
