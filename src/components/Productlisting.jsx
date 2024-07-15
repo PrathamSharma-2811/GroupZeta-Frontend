@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import Cart from './Cart';
 
 const products = [
@@ -17,8 +18,10 @@ const categories = [...new Set(products.map(product => product.category))];
 const ProductListing = () => {
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [selectedCategory, setSelectedCategory] = useState('');
+
   const [priceRange, setPriceRange] = useState([1, 100]);
   const [cartItems, setCartItems] = useState([]);
+
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
@@ -121,6 +124,7 @@ const ProductListing = () => {
               <img src={product.image} alt={product.name} className="h-40 w-full object-cover mb-4" />
               <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
               <p className="text-gray-700">${product.price}</p>
+
               <button onClick={() => addToCart(product)} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Add to Cart</button>
             </div>
           ))}

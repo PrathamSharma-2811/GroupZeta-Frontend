@@ -4,6 +4,7 @@ const Cart = ({ cartItems, removeFromCart, increaseQuantity, decreaseQuantity })
   const total = cartItems.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0);
 
   return (
+<
     <div className="cart bg-gray-100 p-4 shadow-md rounded-lg">
       <h1 className="text-2xl font-bold text-gray-900 mb-4">Shopping Cart</h1>
       <div>
@@ -11,9 +12,10 @@ const Cart = ({ cartItems, removeFromCart, increaseQuantity, decreaseQuantity })
           <p>Your cart is empty</p>
         ) : (
           <table className="min-w-full bg-white">
+
             <thead>
               <tr>
-                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 border-b border-gray-600 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
                 <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
